@@ -51,3 +51,29 @@ resource "citrixadc_rewritepolicylabel_rewritepolicy_binding" "rw_policylabel_rw
   priority               = element(var.adc-rw-policylabel-binding["priority"],count.index)
 }
 
+#####
+# Save config
+#####
+
+resource "citrixadc_nsconfig_save" "web_sec_save" {    
+    all       = true
+    timestamp = timestamp()
+
+  depends_on = [
+    citrixadc_rewritepolicylabel_rewritepolicy_binding.rw_policylabel_rw_policy_binding
+  ]
+}
+
+#####
+# Wait for config save to commence properly, before allowing the subsequent module to run.
+#####
+
+resource "time_sleep" "web_sec_wait" {
+
+  create_duration = "5s"
+
+  depends_on = [
+    citrixadc_nsconfig_save.web_sec_save
+  ]
+
+}
